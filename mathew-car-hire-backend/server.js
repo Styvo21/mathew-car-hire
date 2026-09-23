@@ -1,57 +1,40 @@
-require("dotenv").config();
-
+```javascript
 const express = require("express");
 const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
-
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SECRET_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 
-// ===============================
-// ADMIN SETTINGS
-// ===============================
-
-const ADMIN_USERNAME =
-    process.env.ADMIN_USERNAME || "admin";
-
-const ADMIN_PASSWORD =
-    process.env.ADMIN_PASSWORD || "Mathew@123";
-
-const ADMIN_TOKEN =
-    process.env.ADMIN_TOKEN || "mathew-admin-token";
-
-// ===============================
-// ADMIN AUTHENTICATION
-// ===============================
-
-function requireAdmin(req, res, next) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(401).json({
-            message: "Admin authentication required."
-        });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-
-    if (token !== ADMIN_TOKEN) {
-        return res.status(403).json({
-            message: "Invalid admin token."
-        });
-    }
-
-    next();
+if (!supabaseUrl || !supabaseKey) {
+    console.error("ERROR: SUPABASE_URL or SUPABASE_KEY is missing.");
+    process.exit(1);
 }
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+// ===============================
+// FORMAT CAR FOR FRONTEND
+// ===============================
+
+function formatCar(car) {
+    return {
+        id: car.id,
+        name: car.name,
+        category: car.category,
+        pricePerDay: Number(car.price_per_day || 0),
+        available: Boolean(car.available),
+        image: car.image || ""
+    };
+}
+
 
 // ===============================
 // HOME
@@ -59,9 +42,11 @@ function requireAdmin(req, res, next) {
 
 app.get("/", (req, res) => {
     res.json({
-        message: "Mathew Car Hire API is running"
+        message: "Mathew Car Hire API is running",
+        database: "Supabase"
     });
 });
+
 
 // ===============================
 // GET ALL CARS
@@ -75,104 +60,161 @@ app.get("/cars", async (req, res) => {
             .order("id", { ascending: true });
 
         if (error) {
-            throw error;
-        }
-
-        const cars = data.map(car => ({
-            id: car.id,
-            name: car.name,
-            category: car.category,
-            pricePerDay: car.price_per_day,
-            available: car.available,
-            image: car.image
-        }));
-
-        res.json(cars);
-
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to load cars."
-        });
-    }
-});
-
-// ===============================
-// GET SINGLE CAR
-// ===============================
-
-app.get("/cars/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        const { data, error } = await supabase
-            .from("cars")
-            .select("*")
-            .eq("id", id)
-            .single();
-
-        if (error || !data) {
-            return res.status(404).json({
-                message: "Car not found."
+            console.error("GET CARS ERROR:", error);
+            return res.status(500).json({
+                error: error.message
             });
         }
 
-        res.json({
-            id: data.id,
-            name: data.name,
-            category: data.category,
-            pricePerDay: data.price_per_day,
-            available: data.available,
-            image: data.image
-        });
+        res.json(data.map(formatCar));
 
     } catch (error) {
         console.error(error);
 
         res.status(500).json({
-            message: "Failed to load car."
+            error: "Failed to load cars"
         });
     }
 });
+
 
 // ===============================
 // ADD CAR
 // ===============================
 
-app.post("/cars", requireAdmin, async (req, res) => {
+app.post("/cars", async (req, res) => {
     try {
         const {
             name,
             category,
             pricePerDay,
+            available,
             image
         } = req.body;
 
-        if (!name || !category || !pricePerDay) {
-            return res.status(400).json({
-                message: "Please provide car details."
-            });
-        }
+        const newCar = {
+            name: name,
+            category: category,
+            price_per_day: Number(pricePerDay),
+            available: available !== false,
+            image: image || ""
+        };
 
         const { data, error } = await supabase
             .from("cars")
-            .insert({
-                name: name,
-                category: category,
-                price_per_day: Number(pricePerDay),
-                available: true,
-                image: image || null
-            })
+            .insert([newCar])
             .select()
             .single();
 
         if (error) {
-            throw error;
+            console.error("ADD CAR ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
         }
 
-        res.status(201).json({
-            message: "Car added successfully.",
+        res.status(201).json(formatCar(data));
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to add car"
+        });
+    }
+});
+
+
+// ===============================
+// UPDATE CAR
+// ===============================
+
+app.put("/cars/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const {
+            name,
+            category,
+            pricePerDay,
+            available,
+            image
+        } = req.body;
+
+        const updates = {};
+
+        if (name !== undefined) {
+            updates.name = name;
+        }
+
+        if (category !== undefined) {
+            updates.category = category;
+        }
+
+        if (pricePerDay !== undefined) {
+            updates.price_per_day = Number(pricePerDay);
+        }
+
+        if (available !== undefined) {
+            updates.available = Boolean(available);
+        }
+
+        if (image !== undefined) {
+            updates.image = image;
+        }
+
+        const { data, error } = await supabase
+            .from("cars")
+            .update(updates)
+            .eq("id", id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("UPDATE CAR ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
+        }
+
+        res.json(formatCar(data));
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to update car"
+        });
+    }
+});
+
+
+// ===============================
+// DELETE CAR
+// ===============================
+
+app.delete("/cars/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const { data, error } = await supabase
+            .from("cars")
+            .delete()
+            .eq("id", id)
+            .select();
+
+        if (error) {
+            console.error("DELETE CAR ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
+        }
+
+        res.json({
+            message: "Car deleted successfully",
             car: data
         });
 
@@ -180,305 +222,140 @@ app.post("/cars", requireAdmin, async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            message: "Failed to add car."
+            error: "Failed to delete car"
         });
     }
 });
 
+
 // ===============================
-// CREATE BOOKING
+// GET BOOKINGS
+// ===============================
+
+app.get("/bookings", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from("bookings")
+            .select("*")
+            .order("created-at", { ascending: false });
+
+        if (error) {
+            console.error("GET BOOKINGS ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
+        }
+
+        res.json(data);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to load bookings"
+        });
+    }
+});
+
+
+// ===============================
+// ADD BOOKING
 // ===============================
 
 app.post("/bookings", async (req, res) => {
     try {
         const {
-            carId,
-            fullName,
+            "car-id": carId,
+            "car-name": carName,
+            fullname,
             phone,
             email,
-            pickupDate,
-            returnDate
+            "pick-up date": pickupDate,
+            "return date": returnDate,
+            status
         } = req.body;
 
-        if (
-            !carId ||
-            !fullName ||
-            !phone ||
-            !email ||
-            !pickupDate ||
-            !returnDate
-        ) {
-            return res.status(400).json({
-                message:
-                    "Please provide all booking information."
-            });
-        }
+        const booking = {
+            "car-id": carId,
+            "car-name": carName,
+            fullname: fullname,
+            phone: phone,
+            email: email || "",
+            "pick-up date": pickupDate || "",
+            "return date": returnDate || "",
+            status: status || "Pending",
+            "created-at": new Date().toISOString()
+        };
 
-        const { data: car, error: carError } =
-            await supabase
-                .from("cars")
-                .select("*")
-                .eq("id", Number(carId))
-                .single();
-
-        if (carError || !car) {
-            return res.status(404).json({
-                message:
-                    "Selected car was not found."
-            });
-        }
-
-        if (!car.available) {
-            return res.status(400).json({
-                message:
-                    "This car is currently unavailable."
-            });
-        }
-
-        const { data: booking, error } =
-            await supabase
-                .from("bookings")
-                .insert({
-                    car_id: car.id,
-                    car_name: car.name,
-                    full_name: fullName,
-                    phone: phone,
-                    email: email,
-                    pickup_date: pickupDate,
-                    return_date: returnDate,
-                    status: "Pending"
-                })
-                .select()
-                .single();
+        const { data, error } = await supabase
+            .from("bookings")
+            .insert([booking])
+            .select()
+            .single();
 
         if (error) {
-            throw error;
+            console.error("ADD BOOKING ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
         }
 
-        res.status(201).json({
-            message:
-                "Booking submitted successfully.",
-            booking: booking
+        res.status(201).json(data);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to create booking"
+        });
+    }
+});
+
+
+// ===============================
+// DELETE BOOKING
+// ===============================
+
+app.delete("/bookings/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const { data, error } = await supabase
+            .from("bookings")
+            .delete()
+            .eq("id", id)
+            .select();
+
+        if (error) {
+            console.error("DELETE BOOKING ERROR:", error);
+
+            return res.status(500).json({
+                error: error.message
+            });
+        }
+
+        res.json({
+            message: "Booking deleted successfully",
+            booking: data
         });
 
     } catch (error) {
         console.error(error);
 
         res.status(500).json({
-            message:
-                "Failed to create booking."
+            error: "Failed to delete booking"
         });
     }
 });
 
-// ===============================
-// GET ALL BOOKINGS
-// ADMIN ONLY
-// ===============================
-
-app.get(
-    "/bookings",
-    requireAdmin,
-    async (req, res) => {
-        try {
-            const { data, error } =
-                await supabase
-                    .from("bookings")
-                    .select("*")
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    );
-
-            if (error) {
-                throw error;
-            }
-
-            const bookings = data.map(
-                booking => ({
-                    id: booking.id,
-                    carId: booking.car_id,
-                    carName: booking.car_name,
-                    fullName: booking.full_name,
-                    phone: booking.phone,
-                    email: booking.email,
-                    pickupDate:
-                        booking.pickup_date,
-                    returnDate:
-                        booking.return_date,
-                    status:
-                        booking.status,
-                    createdAt:
-                        booking.created_at
-                })
-            );
-
-            res.json(bookings);
-
-        } catch (error) {
-            console.error(error);
-
-            res.status(500).json({
-                message:
-                    "Failed to load bookings."
-            });
-        }
-    }
-);
-
-// ===============================
-// GET SINGLE BOOKING
-// ADMIN ONLY
-// ===============================
-
-app.get(
-    "/bookings/:id",
-    requireAdmin,
-    async (req, res) => {
-        try {
-            const id =
-                Number(req.params.id);
-
-            const { data, error } =
-                await supabase
-                    .from("bookings")
-                    .select("*")
-                    .eq("id", id)
-                    .single();
-
-            if (error || !data) {
-                return res.status(404).json({
-                    message:
-                        "Booking not found."
-                });
-            }
-
-            res.json(data);
-
-        } catch (error) {
-            console.error(error);
-
-            res.status(500).json({
-                message:
-                    "Failed to load booking."
-            });
-        }
-    }
-);
-
-// ===============================
-// UPDATE BOOKING STATUS
-// ADMIN ONLY
-// ===============================
-
-app.patch(
-    "/bookings/:id/status",
-    requireAdmin,
-    async (req, res) => {
-        try {
-            const id =
-                Number(req.params.id);
-
-            const { status } =
-                req.body;
-
-            const allowedStatuses = [
-                "Pending",
-                "Approved",
-                "Rejected",
-                "Completed"
-            ];
-
-            if (
-                !allowedStatuses.includes(
-                    status
-                )
-            ) {
-                return res.status(400).json({
-                    message:
-                        "Invalid booking status."
-                });
-            }
-
-            const { data, error } =
-                await supabase
-                    .from("bookings")
-                    .update({
-                        status: status
-                    })
-                    .eq("id", id)
-                    .select()
-                    .single();
-
-            if (error || !data) {
-                return res.status(404).json({
-                    message:
-                        "Booking not found."
-                });
-            }
-
-            res.json({
-                message:
-                    "Booking status updated.",
-                booking: data
-            });
-
-        } catch (error) {
-            console.error(error);
-
-            res.status(500).json({
-                message:
-                    "Failed to update booking."
-            });
-        }
-    }
-);
-
-// ===============================
-// ADMIN LOGIN
-// ===============================
-
-app.post(
-    "/admin/login",
-    (req, res) => {
-
-        const {
-            username,
-            password
-        } = req.body;
-
-        if (
-            username ===
-                ADMIN_USERNAME &&
-            password ===
-                ADMIN_PASSWORD
-        ) {
-            return res.json({
-                message:
-                    "Login successful",
-                token:
-                    ADMIN_TOKEN
-            });
-        }
-
-        res.status(401).json({
-            message:
-                "Invalid username or password."
-        });
-    }
-);
 
 // ===============================
 // START SERVER
 // ===============================
 
-app.listen(
-    PORT,
-    () => {
-        console.log(
-            `Server running on port ${PORT}`
-        );
-    }
-);
+app.listen(PORT, () => {
+    console.log(`Mathew Car Hire backend running on port ${PORT}`);
+});
+```
