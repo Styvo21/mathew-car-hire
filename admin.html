@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard - Mathew Car Hire</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            background: #111;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        form {
+            display: grid;
+            gap: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #111;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .booking {
+            border: 1px solid #ddd;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .booking p {
+            margin: 7px 0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .status-select {
+            width: auto;
+            min-width: 150px;
+            margin-right: 10px;
+        }
+
+        .booking-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 18px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .section {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>Mathew Car Hire Admin</h1>
+
+    <button
+        class="logout-btn"
+        onclick="logout()"
+    >
+        Logout
+    </button>
+
+</header>
+
+<div class="container">
+
+    <div class="section">
+
+        <h2>Add New Car</h2>
+
+        <form id="car-form">
+
+            <input
+                type="text"
+                id="car-name"
+                placeholder="Car name"
+                required
+            >
+
+            <input
+                type="text"
+                id="car-category"
+                placeholder="Category e.g. SUV"
+                required
+            >
+
+            <input
+                type="number"
+                id="car-price"
+                placeholder="Price per day"
+                min="1"
+                required
+            >
+
+            <input
+                type="url"
+                id="car-image"
+                placeholder="Car image URL"
+            >
+
+            <button type="submit">
+                Add Car
+            </button>
+
+        </form>
+
+        <div id="car-message"></div>
+
+    </div>
+
+
+    <div class="section">
+
+        <h2>Bookings</h2>
+
+        <button
+            class="refresh-btn"
+            onclick="loadBookings()"
+        >
+            Refresh Bookings
+        </button>
+
+        <div id="bookings-container">
+            Loading bookings...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API_URL =
+        "https://mathew-car-hire-backend.onrender.com";
+
+    const token =
+        localStorage.getItem("adminToken");
+
+
+    if (!token) {
+
+        window.location.href =
+            "admin-login.html";
+
+    }
+
+
+    function logout() {
+
+        localStorage.removeItem(
+            "adminToken"
+        );
+
+        window.location.href =
+            "admin-login.html";
+
+    }
+
+
+    async function loadBookings() {
+
+        const container =
+            document.getElementById(
+                "bookings-container"
+            );
+
+        container.innerHTML =
+            "Loading bookings...";
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/bookings`,
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                logout();
+                return;
+
+            }
+
+            const bookings =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    bookings.message ||
+                    "Failed to load bookings."
+                );
+
+            }
+
+            container.innerHTML = "";
+
+            if (bookings.length === 0) {
+
+                container.innerHTML =
+                    "<p>No bookings yet.</p>";
+
+                return;
+
+            }
+
+            bookings.forEach(booking => {
+
+                const div =
+                    document.createElement("div");
+
+                div.className =
+                    "booking";
+
+                div.innerHTML = `
+
+                    <p>
+                        <strong>Booking ID:</strong>
+                        ${booking.id}
+                    </p>
+
+                    <p>
+                        <strong>Customer:</strong>
+                        ${booking.fullName}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        ${booking.phone}
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong>
+                        ${booking.email}
+                    </p>
+
+                    <p>
+                        <strong>Car:</strong>
+                        ${booking.carName}
+                    </p>
+
+                    <p>
+                        <strong>Pickup:</strong>
+                        ${booking.pickupDate}
+                    </p>
+
+                    <p>
+                        <strong>Return:</strong>
+                        ${booking.returnDate}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="status">
+                            ${booking.status}
+                        </span>
+                    </p>
+
+                    <div class="booking-actions">
+
+                        <select
+                            class="status-select"
+                            id="status-${booking.id}"
+                        >
+
+                            <option value="Pending"
+                                ${booking.status === "Pending" ? "selected" : ""}>
+                                Pending
+                            </option>
+
+                            <option value="Approved"
+                                ${booking.status === "Approved" ? "selected" : ""}>
+                                Approved
+                            </option>
+
+                            <option value="Rejected"
+                                ${booking.status === "Rejected" ? "selected" : ""}>
+                                Rejected
+                            </option>
+
+                            <option value="Completed"
+                                ${booking.status === "Completed" ? "selected" : ""}>
+                                Completed
+                            </option>
+
+                        </select>
+
+                        <button
+                            onclick="updateStatus(${booking.id})"
+                        >
+                            Update Status
+                        </button>
+
+                    </div>
+
+                `;
+
+                container.appendChild(div);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            container.innerHTML = `
+                <p class="error">
+                    ${error.message}
+                </p>
+            `;
+
+        }
+
+    }
+
+
+    async function updateStatus(id) {
+
+        const select =
+            document.getElementById(
+                `status-${id}`
+            );
+
+        const status =
+            select.value;
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/bookings/${id}/status`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+                        status
+                    })
+                }
+            );
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                logout();
+                return;
+
+            }
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to update status."
+                );
+
+            }
+
+            alert(
+                "Booking status updated successfully."
+            );
+
+            loadBookings();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                error.message ||
+                "Failed to update booking."
+            );
+
+        }
+
+    }
+
+
+    document
+        .getElementById("car-form")
+        .addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                const name =
+                    document.getElementById(
+                        "car-name"
+                    ).value.trim();
+
+                const category =
+                    document.getElementById(
+                        "car-category"
+                    ).value.trim();
+
+                const pricePerDay =
+                    document.getElementById(
+                        "car-price"
+                    ).value;
+
+                const image =
+                    document.getElementById(
+                        "car-image"
+                    ).value.trim();
+
+                const message =
+                    document.getElementById(
+                        "car-message"
+                    );
+
+                message.textContent =
+                    "Adding car...";
+
+                message.className = "";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `${API_URL}/cars`,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Authorization":
+                                        `Bearer ${token}`
+                                },
+
+                                body: JSON.stringify({
+                                    name,
+                                    category,
+                                    pricePerDay,
+                                    image
+                                })
+                            }
+                        );
+
+
+                    if (
+                        response.status === 401 ||
+                        response.status === 403
+                    ) {
+
+                        logout();
+                        return;
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            "Failed to add car."
+                        );
+
+                    }
+
+
+                    message.textContent =
+                        "Car added successfully.";
+
+                    message.className =
+                        "success";
+
+
+                    document
+                        .getElementById("car-form")
+                        .reset();
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    message.textContent =
+                        error.message ||
+                        "Failed to add car.";
+
+                    message.className =
+                        "error";
+
+                }
+
+            }
+        );
+
+
+    loadBookings();
+
+</script>
+
+</body>
+</html>
