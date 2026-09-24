@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Mathew Car Hire</title>
+
+    <title>Login - Mathew Car Hire</title>
 
     <style>
         * {
@@ -23,7 +24,7 @@
 
         .container {
             width: 92%;
-            max-width: 450px;
+            max-width: 420px;
             background: white;
             padding: 30px;
             border-radius: 12px;
@@ -90,17 +91,12 @@
             color: #991b1b;
         }
 
-        .success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .login {
+        .register {
             text-align: center;
             margin-top: 20px;
         }
 
-        .login a {
+        .register a {
             color: #2563eb;
             text-decoration: none;
             font-weight: bold;
@@ -114,19 +110,12 @@
 
     <h1>Mathew Car Hire</h1>
 
-    <p class="subtitle">Create your account</p>
+    <p class="subtitle">Login to your account</p>
 
-    <form id="registerForm">
-
-        <label>Full Name</label>
-        <input
-            type="text"
-            id="fullName"
-            placeholder="Enter your full name"
-            required
-        >
+    <form id="loginForm">
 
         <label>Email</label>
+
         <input
             type="email"
             id="email"
@@ -134,45 +123,39 @@
             required
         >
 
-        <label>Phone Number</label>
-        <input
-            type="tel"
-            id="phone"
-            placeholder="Enter your phone number"
-        >
 
         <label>Password</label>
+
         <input
             type="password"
             id="password"
-            placeholder="Create a password"
+            placeholder="Enter your password"
             required
         >
 
-        <label>Confirm Password</label>
-        <input
-            type="password"
-            id="confirmPassword"
-            placeholder="Confirm your password"
-            required
-        >
 
         <button type="submit">
-            Create Account
+            Login
         </button>
 
     </form>
 
+
     <div id="errorMessage" class="message error"></div>
 
-    <div id="successMessage" class="message success"></div>
 
-    <div class="login">
-        Already have an account?
-        <a href="login.html">Login</a>
+    <div class="register">
+
+        Don't have an account?
+
+        <a href="register.html">
+            Create Account
+        </a>
+
     </div>
 
 </div>
+
 
 <script>
 
@@ -180,63 +163,34 @@ const API_URL =
     "https://mathew-car-hire-backend.onrender.com";
 
 
-document.getElementById("registerForm")
+document.getElementById("loginForm")
 .addEventListener("submit", async function(event) {
 
     event.preventDefault();
 
-    const fullName =
-        document.getElementById("fullName").value.trim();
 
     const email =
-        document.getElementById("email").value.trim();
+        document.getElementById("email")
+        .value
+        .trim();
 
-    const phone =
-        document.getElementById("phone").value.trim();
 
     const password =
-        document.getElementById("password").value;
+        document.getElementById("password")
+        .value;
 
-    const confirmPassword =
-        document.getElementById("confirmPassword").value;
 
     const errorMessage =
         document.getElementById("errorMessage");
 
-    const successMessage =
-        document.getElementById("successMessage");
-
 
     errorMessage.style.display = "none";
-    successMessage.style.display = "none";
-
-
-    if (password !== confirmPassword) {
-
-        errorMessage.textContent =
-            "Passwords do not match.";
-
-        errorMessage.style.display = "block";
-
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        errorMessage.textContent =
-            "Password must be at least 6 characters.";
-
-        errorMessage.style.display = "block";
-
-        return;
-    }
 
 
     try {
 
         const response = await fetch(
-            `${API_URL}/users/register`,
+            `${API_URL}/users/login`,
             {
                 method: "POST",
 
@@ -245,22 +199,22 @@ document.getElementById("registerForm")
                 },
 
                 body: JSON.stringify({
-                    fullName,
                     email,
-                    phone,
                     password
                 })
             }
         );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         if (!response.ok) {
 
             throw new Error(
-                data.message || "Registration failed."
+                data.message ||
+                "Login failed."
             );
 
         }
@@ -278,18 +232,8 @@ document.getElementById("registerForm")
         );
 
 
-        successMessage.textContent =
-            "Account created successfully! Redirecting...";
-
-        successMessage.style.display = "block";
-
-
-        setTimeout(() => {
-
-            window.location.href =
-                "user-dashboard.html";
-
-        }, 1000);
+        window.location.href =
+            "user-dashboard.html";
 
 
     } catch (error) {

@@ -1,0 +1,681 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Dashboard - Mathew Car Hire</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .card h3 {
+            margin-bottom: 18px;
+            color: #111827;
+        }
+
+        .profile-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .profile-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 130px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .submit-btn,
+        .refresh-btn {
+            margin-top: 12px;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .refresh-btn {
+            background: #374151;
+            color: white;
+        }
+
+        .refresh-btn:hover {
+            background: #1f2937;
+        }
+
+        .feedback-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .feedback-message {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+
+        .reply {
+            background: #ecfdf5;
+            border-left: 4px solid #16a34a;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .no-reply {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .loading {
+            color: #6b7280;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 750px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .container {
+                width: 94%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Mathew Car Hire</h1>
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+        <h2>My Dashboard</h2>
+        <p>Manage your account and communicate with Mathew Car Hire.</p>
+    </div>
+
+    <div id="errorMessage" class="error"></div>
+    <div id="successMessage" class="success"></div>
+
+    <div class="grid">
+
+        <!-- ACCOUNT -->
+        <div class="card">
+
+            <h3>My Account</h3>
+
+            <div id="profile">
+                <p class="loading">Loading account...</p>
+            </div>
+
+        </div>
+
+        <!-- FEEDBACK -->
+        <div class="card">
+
+            <h3>Send Feedback</h3>
+
+            <textarea
+                id="feedbackMessage"
+                placeholder="Write your feedback, question or message here..."
+            ></textarea>
+
+            <button
+                class="submit-btn"
+                onclick="submitFeedback()"
+            >
+                Send Feedback
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- MY FEEDBACK -->
+    <div class="card">
+
+        <h3>My Feedback & Admin Replies</h3>
+
+        <button
+            class="refresh-btn"
+            onclick="loadFeedback()"
+        >
+            Refresh
+        </button>
+
+        <div id="feedbackList" style="margin-top:20px;">
+            <p class="loading">Loading feedback...</p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const API_URL = "https://mathew-car-hire-backend.onrender.com";
+
+const userToken = localStorage.getItem("userToken");
+
+
+/* =========================
+   CHECK LOGIN
+========================= */
+
+if (!userToken) {
+
+    alert("Please login first.");
+
+    window.location.href = "login.html";
+
+}
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const profile = document.getElementById("profile");
+const feedbackList = document.getElementById("feedbackList");
+const errorMessage = document.getElementById("errorMessage");
+const successMessage = document.getElementById("successMessage");
+
+
+/* =========================
+   MESSAGE FUNCTIONS
+========================= */
+
+function showError(message) {
+
+    errorMessage.textContent = message;
+    errorMessage.style.display = "block";
+
+    successMessage.style.display = "none";
+}
+
+
+function showSuccess(message) {
+
+    successMessage.textContent = message;
+    successMessage.style.display = "block";
+
+    errorMessage.style.display = "none";
+
+    setTimeout(() => {
+        successMessage.style.display = "none";
+    }, 4000);
+
+}
+
+
+/* =========================
+   SAFE HTML
+========================= */
+
+function escapeHTML(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================
+   LOAD PROFILE
+========================= */
+
+async function loadProfile() {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/users/me`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization": `Bearer ${userToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to load account"
+            );
+
+        }
+
+        const user = data.user;
+
+        profile.innerHTML = `
+
+            <div class="profile-item">
+                <strong>Full Name</strong>
+                ${escapeHTML(user.full_name)}
+            </div>
+
+            <div class="profile-item">
+                <strong>Email</strong>
+                ${escapeHTML(user.email)}
+            </div>
+
+            <div class="profile-item">
+                <strong>Phone</strong>
+                ${escapeHTML(user.phone || "Not provided")}
+            </div>
+
+        `;
+
+    } catch (error) {
+
+        console.error("Profile error:", error);
+
+        profile.innerHTML = `
+            <p style="color:#dc2626;">
+                Could not load your account.
+            </p>
+        `;
+
+        showError(
+            "Could not connect to the server. Please try again."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOAD FEEDBACK
+========================= */
+
+async function loadFeedback() {
+
+    feedbackList.innerHTML = `
+        <p class="loading">
+            Loading feedback...
+        </p>
+    `;
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/feedback/my`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization": `Bearer ${userToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Unable to load feedback"
+            );
+
+        }
+
+        const feedback = data.feedback || [];
+
+        if (feedback.length === 0) {
+
+            feedbackList.innerHTML = `
+                <p class="no-reply">
+                    You have not submitted any feedback yet.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        feedbackList.innerHTML = feedback.map(item => {
+
+            const message =
+                escapeHTML(item.message);
+
+            const reply =
+                escapeHTML(item.admin_reply);
+
+            const status =
+                escapeHTML(item.status || "Pending");
+
+            const date =
+                item.created_at
+                    ? new Date(item.created_at).toLocaleString()
+                    : "";
+
+            return `
+
+                <div class="feedback-card">
+
+                    <strong>Your Feedback</strong>
+
+                    <div class="feedback-message">
+                        ${message}
+                    </div>
+
+                    <small>
+                        ${escapeHTML(date)}
+                    </small>
+
+                    <br>
+
+                    <span class="status">
+                        ${status}
+                    </span>
+
+                    ${
+                        item.admin_reply
+                        ?
+
+                        `
+                        <div class="reply">
+
+                            <strong>
+                                Admin Reply:
+                            </strong>
+
+                            <p style="margin-top:7px;">
+                                ${reply}
+                            </p>
+
+                        </div>
+                        `
+
+                        :
+
+                        `
+                        <p class="no-reply" style="margin-top:12px;">
+                            No reply from admin yet.
+                        </p>
+                        `
+                    }
+
+                </div>
+
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error("Feedback error:", error);
+
+        feedbackList.innerHTML = `
+            <p style="color:#dc2626;">
+                Could not load your feedback.
+            </p>
+        `;
+
+        showError(
+            "Could not connect to the server."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   SUBMIT FEEDBACK
+========================= */
+
+async function submitFeedback() {
+
+    const message =
+        document.getElementById("feedbackMessage")
+        .value
+        .trim();
+
+
+    if (!message) {
+
+        showError(
+            "Please write a message before sending."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/feedback`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Authorization": `Bearer ${userToken}`,
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message
+                })
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Could not send feedback"
+            );
+
+        }
+
+
+        document.getElementById(
+            "feedbackMessage"
+        ).value = "";
+
+
+        showSuccess(
+            "Feedback sent successfully!"
+        );
+
+
+        loadFeedback();
+
+    } catch (error) {
+
+        console.error("Submit feedback error:", error);
+
+        showError(
+            "Could not connect to the server."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout() {
+
+    localStorage.removeItem("userToken");
+
+    localStorage.removeItem("user");
+
+    window.location.href = "login.html";
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadProfile();
+
+loadFeedback();
+
+</script>
+
+</body>
+</html>
+```
