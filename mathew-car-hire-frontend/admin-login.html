@@ -1,218 +1,974 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin Login - Mathew Car Hire</title>
+    <title>Mathew Car Hire - Admin Dashboard</title>
 
     <style>
         * {
             box-sizing: border-box;
-        }
-
-        body {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
         }
 
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        body {
+            background: #f4f6f8;
+            color: #222;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 18px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 6px;
-            background: #111;
+        header {
+            background: #111827;
             color: white;
-            font-size: 16px;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 22px;
+        }
+
+        #logoutBtn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
         }
 
-        button:hover {
-            background: #333;
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
-        #login-message {
-            margin-top: 15px;
-            text-align: center;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat h3 {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat p {
+            font-size: 28px;
             font-weight: bold;
         }
 
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #333;
-            text-decoration: none;
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .form-buttons {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        #saveBtn {
+            background: #2563eb;
+            color: white;
+        }
+
+        #cancelBtn {
+            background: #6b7280;
+            color: white;
+            display: none;
+        }
+
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .car {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .car img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .car-content {
+            padding: 15px;
+        }
+
+        .car-content h3 {
+            margin-bottom: 8px;
+        }
+
+        .car-content p {
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            color: red;
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .edit {
+            background: #2563eb;
+            color: white;
+        }
+
+        .toggle {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .delete-booking {
+            background: #dc2626;
+            color: white;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 800px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cars-grid {
+                grid-template-columns: 1fr;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-container">
+<header>
+    <h1>Mathew Car Hire - Admin Dashboard</h1>
+    <button id="logoutBtn">Logout</button>
+</header>
 
-        <h1>Admin Login</h1>
+<div class="container">
 
-        <p class="subtitle">
-            Mathew Car Hire
-        </p>
+    <!-- STATISTICS -->
 
-        <form id="login-form">
+    <div class="stats">
 
-            <label for="username">
-                Username
-            </label>
+        <div class="stat">
+            <h3>Total Cars</h3>
+            <p id="totalCars">0</p>
+        </div>
 
-            <input
-                type="text"
-                id="username"
-                placeholder="Enter username"
-                required
-            >
+        <div class="stat">
+            <h3>Available</h3>
+            <p id="availableCars">0</p>
+        </div>
 
-            <label for="password">
-                Password
-            </label>
+        <div class="stat">
+            <h3>Unavailable</h3>
+            <p id="unavailableCars">0</p>
+        </div>
 
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter password"
-                required
-            >
-
-            <button type="submit">
-                Login
-            </button>
-
-        </form>
-
-        <div id="login-message"></div>
-
-        <a href="index.html" class="back">
-            ← Back to Website
-        </a>
+        <div class="stat">
+            <h3>Total Bookings</h3>
+            <p id="totalBookings">0</p>
+        </div>
 
     </div>
 
-    <script>
 
-        const API_URL =
-            "https://mathew-car-hire-backend.onrender.com";
+    <!-- ADD / EDIT CAR -->
 
-        const loginForm =
-            document.getElementById("login-form");
+    <div class="card">
 
-        loginForm.addEventListener("submit", async (event) => {
+        <h2 id="formTitle">Add New Car</h2>
 
-            event.preventDefault();
+        <form id="carForm">
 
-            const username =
-                document.getElementById("username").value.trim();
+            <input
+                type="text"
+                id="name"
+                placeholder="Car Name"
+                required
+            >
 
-            const password =
-                document.getElementById("password").value;
+            <input
+                type="text"
+                id="category"
+                placeholder="Category"
+                required
+            >
 
-            const message =
-                document.getElementById("login-message");
+            <input
+                type="number"
+                id="pricePerDay"
+                placeholder="Price Per Day"
+                required
+            >
 
-            message.textContent = "Logging in...";
-            message.style.color = "black";
+            <input
+                type="url"
+                id="image"
+                placeholder="Image URL"
+            >
 
-            try {
+            <select id="available">
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
+            </select>
 
-                const response = await fetch(
-                    `${API_URL}/admin/login`,
-                    {
-                        method: "POST",
+            <div class="form-buttons">
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                <button type="submit" id="saveBtn">
+                    Add Car
+                </button>
 
-                        body: JSON.stringify({
-                            username,
-                            password
-                        })
-                    }
-                );
+                <button type="button" id="cancelBtn">
+                    Cancel Edit
+                </button>
 
-                const data = await response.json();
+            </div>
 
-                if (!response.ok) {
-                    throw new Error(
-                        data.message || "Login failed."
-                    );
+        </form>
+
+        <div id="message" class="message"></div>
+
+    </div>
+
+
+    <!-- MANAGE CARS -->
+
+    <div class="card">
+
+        <h2>Manage Cars</h2>
+
+        <div id="carsContainer" class="cars-grid">
+            Loading cars...
+        </div>
+
+    </div>
+
+
+    <!-- BOOKINGS -->
+
+    <div class="card">
+
+        <h2>Bookings</h2>
+
+        <div style="overflow-x:auto;">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Car</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Pickup</th>
+                        <th>Return</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="bookingsBody">
+                    <tr>
+                        <td colspan="9">
+                            Loading bookings...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "https://mathew-car-hire-backend.onrender.com";
+
+let cars = [];
+let bookings = [];
+let editingCarId = null;
+
+
+// ===============================
+// LOAD CARS
+// ===============================
+
+async function loadCars() {
+
+    try {
+
+        const response = await fetch(`${API_URL}/cars`);
+
+        if (!response.ok) {
+            throw new Error("Failed to load cars");
+        }
+
+        cars = await response.json();
+
+        renderCars();
+        updateStats();
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("carsContainer").innerHTML =
+            "<p>Failed to load cars.</p>";
+    }
+}
+
+
+// ===============================
+// DISPLAY CARS
+// ===============================
+
+function renderCars() {
+
+    const container = document.getElementById("carsContainer");
+
+    if (cars.length === 0) {
+
+        container.innerHTML = "<p>No cars available.</p>";
+
+        return;
+    }
+
+    container.innerHTML = cars.map(car => `
+
+        <div class="car">
+
+            <img
+                src="${car.image || "https://via.placeholder.com/400x200?text=No+Image"}"
+                alt="${car.name}"
+            >
+
+            <div class="car-content">
+
+                <h3>${car.name}</h3>
+
+                <p>Category: ${car.category}</p>
+
+                <p>
+                    Price: KES ${Number(car.pricePerDay).toLocaleString()} / day
+                </p>
+
+                <p class="${car.available ? "available" : "unavailable"}">
+
+                    ${car.available ? "Available" : "Unavailable"}
+
+                </p>
+
+                <div class="actions">
+
+                    <button
+                        type="button"
+                        class="edit"
+                        onclick="editCar(${car.id})">
+                        Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="toggle"
+                        onclick="toggleAvailability(${car.id})">
+                        ${car.available ? "Disable" : "Enable"}
+                    </button>
+
+                    <button
+                        type="button"
+                        class="delete"
+                        onclick="deleteCar(${car.id})">
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join("");
+}
+
+
+// ===============================
+// EDIT CAR
+// ===============================
+
+function editCar(id) {
+
+    const car = cars.find(c => Number(c.id) === Number(id));
+
+    if (!car) {
+
+        alert("Car not found.");
+
+        return;
+    }
+
+    editingCarId = id;
+
+    document.getElementById("name").value = car.name || "";
+    document.getElementById("category").value = car.category || "";
+    document.getElementById("pricePerDay").value = car.pricePerDay || "";
+    document.getElementById("image").value = car.image || "";
+    document.getElementById("available").value =
+        car.available ? "true" : "false";
+
+    document.getElementById("formTitle").textContent = "Edit Car";
+
+    document.getElementById("saveBtn").textContent = "Update Car";
+
+    document.getElementById("cancelBtn").style.display = "block";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+// ===============================
+// CANCEL EDIT
+// ===============================
+
+document.getElementById("cancelBtn").addEventListener("click", function () {
+
+    resetForm();
+
+});
+
+
+// ===============================
+// ADD / UPDATE CAR
+// ===============================
+
+document.getElementById("carForm").addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const carData = {
+
+        name: document.getElementById("name").value,
+
+        category: document.getElementById("category").value,
+
+        pricePerDay: Number(
+            document.getElementById("pricePerDay").value
+        ),
+
+        available:
+            document.getElementById("available").value === "true",
+
+        image:
+            document.getElementById("image").value
+
+    };
+
+
+    try {
+
+        let response;
+
+        if (editingCarId !== null) {
+
+            response = await fetch(
+                `${API_URL}/cars/${editingCarId}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(carData)
                 }
+            );
 
-                localStorage.setItem(
-                    "adminToken",
-                    data.token
-                );
+        } else {
 
-                message.textContent =
-                    "Login successful.";
+            response = await fetch(
+                `${API_URL}/cars`,
+                {
+                    method: "POST",
 
-                message.style.color = "green";
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                setTimeout(() => {
-                    window.location.href = "admin.html";
-                }, 500);
+                    body: JSON.stringify(carData)
+                }
+            );
+        }
 
-            } catch (error) {
 
-                console.error(error);
+        const result = await response.json();
 
-                message.textContent =
-                    error.message || "Login failed.";
 
-                message.style.color = "red";
+        if (!response.ok) {
+
+            throw new Error(
+                result.error || "Request failed"
+            );
+        }
+
+
+        document.getElementById("message").textContent =
+            editingCarId !== null
+                ? "Car updated successfully!"
+                : "Car added successfully!";
+
+
+        document.getElementById("message").style.color = "green";
+
+
+        resetForm();
+
+        await loadCars();
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("message").textContent =
+            error.message;
+
+        document.getElementById("message").style.color = "red";
+
+    }
+
+});
+
+
+// ===============================
+// RESET FORM
+// ===============================
+
+function resetForm() {
+
+    editingCarId = null;
+
+    document.getElementById("carForm").reset();
+
+    document.getElementById("formTitle").textContent =
+        "Add New Car";
+
+    document.getElementById("saveBtn").textContent =
+        "Add Car";
+
+    document.getElementById("cancelBtn").style.display =
+        "none";
+}
+
+
+// ===============================
+// ENABLE / DISABLE CAR
+// ===============================
+
+async function toggleAvailability(id) {
+
+    const car = cars.find(c => Number(c.id) === Number(id));
+
+    if (!car) return;
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/cars/${id}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    available: !car.available
+                })
             }
+        );
 
-        });
 
-    </script>
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error || "Failed to update availability"
+            );
+        }
+
+
+        await loadCars();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// ===============================
+// DELETE CAR
+// ===============================
+
+async function deleteCar(id) {
+
+    const car = cars.find(c => Number(c.id) === Number(id));
+
+    if (!car) return;
+
+
+    const confirmed = confirm(
+        `Delete ${car.name}?`
+    );
+
+    if (!confirmed) return;
+
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/cars/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error || "Failed to delete car"
+            );
+        }
+
+
+        await loadCars();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// ===============================
+// LOAD BOOKINGS
+// ===============================
+
+async function loadBookings() {
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/bookings`
+        );
+
+
+        if (!response.ok) {
+            throw new Error("Failed to load bookings");
+        }
+
+
+        bookings = await response.json();
+
+        renderBookings();
+
+        updateStats();
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("bookingsBody").innerHTML =
+            `
+            <tr>
+                <td colspan="9">
+                    Failed to load bookings.
+                </td>
+            </tr>
+            `;
+    }
+}
+
+
+// ===============================
+// DISPLAY BOOKINGS
+// ===============================
+
+function renderBookings() {
+
+    const body =
+        document.getElementById("bookingsBody");
+
+
+    if (bookings.length === 0) {
+
+        body.innerHTML =
+            `
+            <tr>
+                <td colspan="9">
+                    No bookings yet.
+                </td>
+            </tr>
+            `;
+
+        return;
+    }
+
+
+    body.innerHTML = bookings.map(booking => `
+
+        <tr>
+
+            <td>${booking.id || ""}</td>
+
+            <td>${booking["car-name"] || ""}</td>
+
+            <td>${booking.fullname || ""}</td>
+
+            <td>${booking.phone || ""}</td>
+
+            <td>${booking.email || ""}</td>
+
+            <td>${booking["pick-up date"] || ""}</td>
+
+            <td>${booking["return date"] || ""}</td>
+
+            <td>${booking.status || ""}</td>
+
+            <td>
+
+                <button
+                    type="button"
+                    class="delete-booking"
+                    onclick="deleteBooking(${booking.id})">
+
+                    Delete
+
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+}
+
+
+// ===============================
+// DELETE BOOKING
+// ===============================
+
+async function deleteBooking(id) {
+
+    const confirmed = confirm(
+        "Delete this booking?"
+    );
+
+    if (!confirmed) return;
+
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/bookings/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error || "Failed to delete booking"
+            );
+        }
+
+
+        await loadBookings();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+
+
+// ===============================
+// UPDATE STATISTICS
+// ===============================
+
+function updateStats() {
+
+    const total = cars.length;
+
+    const available =
+        cars.filter(car => car.available).length;
+
+    const unavailable =
+        cars.filter(car => !car.available).length;
+
+
+    document.getElementById("totalCars").textContent =
+        total;
+
+    document.getElementById("availableCars").textContent =
+        available;
+
+    document.getElementById("unavailableCars").textContent =
+        unavailable;
+
+    document.getElementById("totalBookings").textContent =
+        bookings.length;
+}
+
+
+// ===============================
+// LOGOUT
+// ===============================
+
+document.getElementById("logoutBtn").addEventListener(
+    "click",
+    function () {
+
+        window.location.href = "admin-login.html";
+
+    }
+);
+
+
+// ===============================
+// START
+// ===============================
+
+loadCars();
+loadBookings();
+
+</script>
 
 </body>
 </html>
+```

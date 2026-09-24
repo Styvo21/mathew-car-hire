@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -20,7 +21,7 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            background: #f4f4f4;
             color: #222;
         }
 
@@ -28,6 +29,7 @@
             background: #111;
             color: white;
             padding: 18px 30px;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -42,8 +44,8 @@
             background: #d32f2f;
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 5px;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
         }
 
@@ -58,7 +60,9 @@
             padding: 25px;
             margin-bottom: 25px;
             border-radius: 10px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,0.08);
         }
 
         h2 {
@@ -73,41 +77,128 @@
         input,
         select {
             width: 100%;
-            padding: 11px;
+            padding: 12px;
+
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 6px;
+
             font-size: 15px;
         }
 
         button {
             padding: 11px 16px;
+
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+
             cursor: pointer;
+
             background: #111;
             color: white;
         }
 
         button:hover {
-            opacity: 0.9;
+            opacity: 0.88;
         }
 
         .success {
             color: green;
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .error {
             color: red;
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 12px;
         }
+
+        /* CARS */
+
+        .cars-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(260px, 1fr));
+
+            gap: 20px;
+        }
+
+        .car-card {
+            border: 1px solid #ddd;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            background: white;
+        }
+
+        .car-card img {
+            width: 100%;
+            height: 170px;
+
+            object-fit: cover;
+        }
+
+        .car-content {
+            padding: 18px;
+        }
+
+        .car-content h3 {
+            margin-top: 0;
+        }
+
+        .car-price {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .available {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            color: red;
+            font-weight: bold;
+        }
+
+        .car-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-btn {
+            background: #1976d2;
+            flex: 1;
+        }
+
+        .delete-btn {
+            background: #d32f2f;
+            flex: 1;
+        }
+
+        /* EDIT FORM */
+
+        #edit-section {
+            display: none;
+        }
+
+        .cancel-btn {
+            background: #777;
+        }
+
+        /* BOOKINGS */
 
         .booking {
             border: 1px solid #ddd;
+
             padding: 18px;
+
             margin-bottom: 15px;
+
             border-radius: 8px;
         }
 
@@ -115,25 +206,22 @@
             margin: 7px 0;
         }
 
-        .status {
-            font-weight: bold;
+        .booking-actions {
+            display: flex;
+            gap: 10px;
+
+            margin-top: 15px;
+
+            flex-wrap: wrap;
         }
 
         .status-select {
             width: auto;
-            min-width: 150px;
-            margin-right: 10px;
-        }
-
-        .booking-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            min-width: 160px;
         }
 
         .refresh-btn {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
@@ -154,17 +242,25 @@
                 padding: 18px;
             }
 
+            .car-buttons {
+                flex-direction: column;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
 
 <header>
 
-    <h1>Mathew Car Hire Admin</h1>
+    <h1>
+        Mathew Car Hire Admin
+    </h1>
 
     <button
         class="logout-btn"
@@ -175,11 +271,17 @@
 
 </header>
 
+
 <div class="container">
+
+
+    <!-- ADD CAR -->
 
     <div class="section">
 
-        <h2>Add New Car</h2>
+        <h2>
+            Add New Car
+        </h2>
 
         <form id="car-form">
 
@@ -222,9 +324,115 @@
     </div>
 
 
+    <!-- EDIT CAR -->
+
+    <div
+        class="section"
+        id="edit-section"
+    >
+
+        <h2>
+            Edit Car
+        </h2>
+
+        <form id="edit-form">
+
+            <input
+                type="hidden"
+                id="edit-id"
+            >
+
+            <input
+                type="text"
+                id="edit-name"
+                placeholder="Car name"
+                required
+            >
+
+            <input
+                type="text"
+                id="edit-category"
+                placeholder="Category"
+                required
+            >
+
+            <input
+                type="number"
+                id="edit-price"
+                placeholder="Price per day"
+                min="1"
+                required
+            >
+
+            <input
+                type="url"
+                id="edit-image"
+                placeholder="Car image URL"
+            >
+
+            <select id="edit-available">
+
+                <option value="true">
+                    Available
+                </option>
+
+                <option value="false">
+                    Unavailable
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Save Changes
+            </button>
+
+            <button
+                type="button"
+                class="cancel-btn"
+                onclick="cancelEdit()"
+            >
+                Cancel
+            </button>
+
+        </form>
+
+        <div id="edit-message"></div>
+
+    </div>
+
+
+    <!-- CARS -->
+
     <div class="section">
 
-        <h2>Bookings</h2>
+        <h2>
+            Manage Cars
+        </h2>
+
+        <button
+            class="refresh-btn"
+            onclick="loadCars()"
+        >
+            Refresh Cars
+        </button>
+
+        <div
+            id="cars-container"
+            class="cars-grid"
+        >
+            Loading cars...
+        </div>
+
+    </div>
+
+
+    <!-- BOOKINGS -->
+
+    <div class="section">
+
+        <h2>
+            Bookings
+        </h2>
 
         <button
             class="refresh-btn"
@@ -239,51 +447,686 @@
 
     </div>
 
+
 </div>
 
 
 <script>
 
-    const API_URL =
-        "https://mathew-car-hire-backend.onrender.com";
 
-    const token =
-        localStorage.getItem("adminToken");
+const API_URL =
+    "https://mathew-car-hire-backend.onrender.com";
 
 
-    if (!token) {
-
-        window.location.href =
-            "admin-login.html";
-
-    }
+const token =
+    localStorage.getItem("adminToken");
 
 
-    function logout() {
+if (!token) {
 
-        localStorage.removeItem(
-            "adminToken"
+    window.location.href =
+        "admin-login.html";
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout() {
+
+    localStorage.removeItem(
+        "adminToken"
+    );
+
+    window.location.href =
+        "admin-login.html";
+
+}
+
+
+/* =========================
+   LOAD CARS
+========================= */
+
+async function loadCars() {
+
+    const container =
+        document.getElementById(
+            "cars-container"
         );
 
-        window.location.href =
-            "admin-login.html";
+    container.innerHTML =
+        "Loading cars...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/cars`
+            );
+
+
+        const cars =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                cars.message ||
+                "Failed to load cars."
+            );
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        if (cars.length === 0) {
+
+            container.innerHTML =
+                "<p>No cars found.</p>";
+
+            return;
+
+        }
+
+
+        cars.forEach(car => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "car-card";
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${
+                        car.image ||
+                        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2"
+                    }"
+                    alt="${car.name}"
+                >
+
+                <div class="car-content">
+
+                    <h3>
+                        ${car.name}
+                    </h3>
+
+                    <p>
+                        Category:
+                        ${car.category}
+                    </p>
+
+                    <p class="car-price">
+                        KES
+                        ${Number(
+                            car.pricePerDay
+                        ).toLocaleString()}
+                        / day
+                    </p>
+
+                    <p class="${
+                        car.available
+                            ? "available"
+                            : "unavailable"
+                    }">
+
+                        ${
+                            car.available
+                                ? "Available"
+                                : "Unavailable"
+                        }
+
+                    </p>
+
+                    <div class="car-buttons">
+
+                        <button
+                            class="edit-btn"
+                            onclick="editCar(${car.id})"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteCar(${car.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(card);
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <p class="error">
+                ${error.message}
+            </p>
+        `;
 
     }
 
+}
 
-    async function loadBookings() {
 
-        const container =
-            document.getElementById(
-                "bookings-container"
+/* =========================
+   EDIT CAR
+========================= */
+
+async function editCar(id) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/cars/${id}`
             );
 
-        container.innerHTML =
-            "Loading bookings...";
 
-        try {
+        const car =
+            await response.json();
 
-            const response = await fetch(
+
+        if (!response.ok) {
+
+            throw new Error(
+                car.message ||
+                "Failed to load car."
+            );
+
+        }
+
+
+        document.getElementById(
+            "edit-section"
+        ).style.display = "block";
+
+
+        document.getElementById(
+            "edit-id"
+        ).value = car.id;
+
+
+        document.getElementById(
+            "edit-name"
+        ).value = car.name;
+
+
+        document.getElementById(
+            "edit-category"
+        ).value = car.category;
+
+
+        document.getElementById(
+            "edit-price"
+        ).value = car.pricePerDay;
+
+
+        document.getElementById(
+            "edit-image"
+        ).value = car.image || "";
+
+
+        document.getElementById(
+            "edit-available"
+        ).value =
+            car.available
+                ? "true"
+                : "false";
+
+
+        document.getElementById(
+            "edit-section"
+        ).scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        alert(
+            error.message ||
+            "Unable to edit car."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   SAVE EDITED CAR
+========================= */
+
+document
+    .getElementById("edit-form")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById(
+                    "edit-id"
+                ).value;
+
+
+            const name =
+                document.getElementById(
+                    "edit-name"
+                ).value.trim();
+
+
+            const category =
+                document.getElementById(
+                    "edit-category"
+                ).value.trim();
+
+
+            const pricePerDay =
+                document.getElementById(
+                    "edit-price"
+                ).value;
+
+
+            const image =
+                document.getElementById(
+                    "edit-image"
+                ).value.trim();
+
+
+            const available =
+                document.getElementById(
+                    "edit-available"
+                ).value === "true";
+
+
+            const message =
+                document.getElementById(
+                    "edit-message"
+                );
+
+
+            message.textContent =
+                "Saving changes...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/cars/${id}`,
+                        {
+                            method: "PATCH",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+
+                            },
+
+                            body: JSON.stringify({
+
+                                name,
+                                category,
+                                pricePerDay,
+                                image,
+                                available
+
+                            })
+
+                        }
+                    );
+
+
+                if (
+                    response.status === 401 ||
+                    response.status === 403
+                ) {
+
+                    logout();
+                    return;
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to update car."
+                    );
+
+                }
+
+
+                message.textContent =
+                    "Car updated successfully.";
+
+                message.className =
+                    "success";
+
+
+                loadCars();
+
+
+                setTimeout(() => {
+
+                    cancelEdit();
+
+                }, 1000);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    error.message ||
+                    "Failed to update car.";
+
+                message.className =
+                    "error";
+
+            }
+
+        }
+    );
+
+
+/* =========================
+   CANCEL EDIT
+========================= */
+
+function cancelEdit() {
+
+    document.getElementById(
+        "edit-section"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "edit-form"
+    ).reset();
+
+
+    document.getElementById(
+        "edit-message"
+    ).textContent = "";
+
+}
+
+
+/* =========================
+   DELETE CAR
+========================= */
+
+async function deleteCar(id) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this car?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/cars/${id}`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            logout();
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Failed to delete car."
+            );
+
+        }
+
+
+        alert(
+            "Car deleted successfully."
+        );
+
+
+        loadCars();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            error.message ||
+            "Failed to delete car."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   ADD CAR
+========================= */
+
+document
+    .getElementById("car-form")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const name =
+                document.getElementById(
+                    "car-name"
+                ).value.trim();
+
+
+            const category =
+                document.getElementById(
+                    "car-category"
+                ).value.trim();
+
+
+            const pricePerDay =
+                document.getElementById(
+                    "car-price"
+                ).value;
+
+
+            const image =
+                document.getElementById(
+                    "car-image"
+                ).value.trim();
+
+
+            const message =
+                document.getElementById(
+                    "car-message"
+                );
+
+
+            message.textContent =
+                "Adding car...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/cars`,
+                        {
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+
+                            },
+
+                            body: JSON.stringify({
+
+                                name,
+                                category,
+                                pricePerDay,
+                                image
+
+                            })
+
+                        }
+                    );
+
+
+                if (
+                    response.status === 401 ||
+                    response.status === 403
+                ) {
+
+                    logout();
+                    return;
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to add car."
+                    );
+
+                }
+
+
+                message.textContent =
+                    "Car added successfully.";
+
+                message.className =
+                    "success";
+
+
+                document
+                    .getElementById("car-form")
+                    .reset();
+
+
+                loadCars();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    error.message ||
+                    "Failed to add car.";
+
+                message.className =
+                    "error";
+
+            }
+
+        }
+    );
+
+
+/* =========================
+   LOAD BOOKINGS
+========================= */
+
+async function loadBookings() {
+
+    const container =
+        document.getElementById(
+            "bookings-container"
+        );
+
+
+    container.innerHTML =
+        "Loading bookings...";
+
+
+    try {
+
+        const response =
+            await fetch(
                 `${API_URL}/bookings`,
                 {
                     headers: {
@@ -293,89 +1136,114 @@
                 }
             );
 
-            if (
-                response.status === 401 ||
-                response.status === 403
-            ) {
 
-                logout();
-                return;
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
 
-            }
+            logout();
+            return;
 
-            const bookings =
-                await response.json();
+        }
 
-            if (!response.ok) {
 
-                throw new Error(
-                    bookings.message ||
-                    "Failed to load bookings."
-                );
+        const bookings =
+            await response.json();
 
-            }
 
-            container.innerHTML = "";
+        if (!response.ok) {
 
-            if (bookings.length === 0) {
+            throw new Error(
+                bookings.message ||
+                "Failed to load bookings."
+            );
 
-                container.innerHTML =
-                    "<p>No bookings yet.</p>";
+        }
 
-                return;
 
-            }
+        container.innerHTML = "";
 
-            bookings.forEach(booking => {
+
+        if (bookings.length === 0) {
+
+            container.innerHTML =
+                "<p>No bookings yet.</p>";
+
+            return;
+
+        }
+
+
+        bookings.forEach(
+            booking => {
 
                 const div =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
+
 
                 div.className =
                     "booking";
 
+
                 div.innerHTML = `
 
                     <p>
-                        <strong>Booking ID:</strong>
+                        <strong>
+                            Booking ID:
+                        </strong>
                         ${booking.id}
                     </p>
 
                     <p>
-                        <strong>Customer:</strong>
+                        <strong>
+                            Customer:
+                        </strong>
                         ${booking.fullName}
                     </p>
 
                     <p>
-                        <strong>Phone:</strong>
+                        <strong>
+                            Phone:
+                        </strong>
                         ${booking.phone}
                     </p>
 
                     <p>
-                        <strong>Email:</strong>
+                        <strong>
+                            Email:
+                        </strong>
                         ${booking.email}
                     </p>
 
                     <p>
-                        <strong>Car:</strong>
+                        <strong>
+                            Car:
+                        </strong>
                         ${booking.carName}
                     </p>
 
                     <p>
-                        <strong>Pickup:</strong>
+                        <strong>
+                            Pickup:
+                        </strong>
                         ${booking.pickupDate}
                     </p>
 
                     <p>
-                        <strong>Return:</strong>
+                        <strong>
+                            Return:
+                        </strong>
                         ${booking.returnDate}
                     </p>
 
                     <p>
-                        <strong>Status:</strong>
-                        <span class="status">
-                            ${booking.status}
-                        </span>
+                        <strong>
+                            Status:
+                        </strong>
+                        ${booking.status}
                     </p>
 
                     <div class="booking-actions">
@@ -385,23 +1253,51 @@
                             id="status-${booking.id}"
                         >
 
-                            <option value="Pending"
-                                ${booking.status === "Pending" ? "selected" : ""}>
+                            <option
+                                value="Pending"
+                                ${
+                                    booking.status ===
+                                    "Pending"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
                                 Pending
                             </option>
 
-                            <option value="Approved"
-                                ${booking.status === "Approved" ? "selected" : ""}>
+                            <option
+                                value="Approved"
+                                ${
+                                    booking.status ===
+                                    "Approved"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
                                 Approved
                             </option>
 
-                            <option value="Rejected"
-                                ${booking.status === "Rejected" ? "selected" : ""}>
+                            <option
+                                value="Rejected"
+                                ${
+                                    booking.status ===
+                                    "Rejected"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
                                 Rejected
                             </option>
 
-                            <option value="Completed"
-                                ${booking.status === "Completed" ? "selected" : ""}>
+                            <option
+                                value="Completed"
+                                ${
+                                    booking.status ===
+                                    "Completed"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
                                 Completed
                             </option>
 
@@ -417,220 +1313,126 @@
 
                 `;
 
+
                 container.appendChild(div);
-
-            });
-
-        } catch (error) {
-
-            console.error(error);
-
-            container.innerHTML = `
-                <p class="error">
-                    ${error.message}
-                </p>
-            `;
-
-        }
-
-    }
-
-
-    async function updateStatus(id) {
-
-        const select =
-            document.getElementById(
-                `status-${id}`
-            );
-
-        const status =
-            select.value;
-
-        try {
-
-            const response = await fetch(
-                `${API_URL}/bookings/${id}/status`,
-                {
-                    method: "PATCH",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${token}`
-                    },
-
-                    body: JSON.stringify({
-                        status
-                    })
-                }
-            );
-
-            if (
-                response.status === 401 ||
-                response.status === 403
-            ) {
-
-                logout();
-                return;
-
-            }
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "Failed to update status."
-                );
-
-            }
-
-            alert(
-                "Booking status updated successfully."
-            );
-
-            loadBookings();
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                error.message ||
-                "Failed to update booking."
-            );
-
-        }
-
-    }
-
-
-    document
-        .getElementById("car-form")
-        .addEventListener(
-            "submit",
-            async function(event) {
-
-                event.preventDefault();
-
-                const name =
-                    document.getElementById(
-                        "car-name"
-                    ).value.trim();
-
-                const category =
-                    document.getElementById(
-                        "car-category"
-                    ).value.trim();
-
-                const pricePerDay =
-                    document.getElementById(
-                        "car-price"
-                    ).value;
-
-                const image =
-                    document.getElementById(
-                        "car-image"
-                    ).value.trim();
-
-                const message =
-                    document.getElementById(
-                        "car-message"
-                    );
-
-                message.textContent =
-                    "Adding car...";
-
-                message.className = "";
-
-
-                try {
-
-                    const response =
-                        await fetch(
-                            `${API_URL}/cars`,
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Content-Type":
-                                        "application/json",
-
-                                    "Authorization":
-                                        `Bearer ${token}`
-                                },
-
-                                body: JSON.stringify({
-                                    name,
-                                    category,
-                                    pricePerDay,
-                                    image
-                                })
-                            }
-                        );
-
-
-                    if (
-                        response.status === 401 ||
-                        response.status === 403
-                    ) {
-
-                        logout();
-                        return;
-
-                    }
-
-
-                    const data =
-                        await response.json();
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            data.message ||
-                            "Failed to add car."
-                        );
-
-                    }
-
-
-                    message.textContent =
-                        "Car added successfully.";
-
-                    message.className =
-                        "success";
-
-
-                    document
-                        .getElementById("car-form")
-                        .reset();
-
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    message.textContent =
-                        error.message ||
-                        "Failed to add car.";
-
-                    message.className =
-                        "error";
-
-                }
 
             }
         );
 
 
-    loadBookings();
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <p class="error">
+                ${error.message}
+            </p>
+        `;
+
+    }
+
+}
+
+
+/* =========================
+   UPDATE BOOKING STATUS
+========================= */
+
+async function updateStatus(id) {
+
+    const select =
+        document.getElementById(
+            `status-${id}`
+        );
+
+
+    const status =
+        select.value;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/bookings/${id}/status`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body: JSON.stringify({
+                        status
+                    })
+
+                }
+            );
+
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            logout();
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Failed to update booking."
+            );
+
+        }
+
+
+        alert(
+            "Booking status updated successfully."
+        );
+
+
+        loadBookings();
+
+
+    } catch (error) {
+
+        alert(
+            error.message ||
+            "Failed to update booking."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+loadCars();
+
+loadBookings();
 
 </script>
 
+
 </body>
+
 </html>
